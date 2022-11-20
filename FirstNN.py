@@ -1,4 +1,4 @@
-
+#%%
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
@@ -9,13 +9,16 @@ import matplotlib.pyplot as plt
 input_data = np.load(r"C:\Users\georg\Desktop\master_arbeit\data\target_data_plane_38e8.npz")
 output_data = np.load(r"C:\Users\georg\Desktop\master_arbeit\data\targets.npz")
 
-input_data = input_data['arr_0'][0:100000]
-output_data = output_data['arr_0'][0:100000]
+input_data = input_data['arr_0']#.swapaxes(2,3)
+output_data = output_data['arr_0']#.swapaxes(2,3)
 print(input_data.shape)
 print(output_data.shape)
 #%%
-len(output_data[output_data != 0]
-)
+input_data.ndim
+#%%
+input_data = np.swapaxes(input_data,3,2)
+#%%
+input_data.shape
 #%%
 # slice data
 trainset_index  = int(input_data.shape[0]*0.7)
@@ -30,16 +33,16 @@ X_test  = input_data[valset_index:]
 Y_test  = output_data[valset_index:]
 
 # define model
-model = keras.Sequential([keras.layers.InputLayer(input_shape = (12,32,2,2)),
-                            keras.layers.Conv3D(filters = 10, kernel_size = [2,2,1]),
-                            keras.layers.Conv3D(filters = 10, kernel_size = [2,2,1]),
+model = keras.Sequential([keras.layers.InputLayer(input_shape = (12,2,32,2)),
+                            keras.layers.Conv3D(filters = 5, kernel_size = [1,1,1]),
+                            keras.layers.Conv3D(filters = 5, kernel_size = [1,1,1]),
                             keras.layers.Flatten(),
                             keras.layers.Dense(12*32*2, activation = "relu"),
-                            keras.layers.Dense(2, activation = "softmax")])
+                            keras.layers.Dense(1, activation = "sigmoid")])
 # compile model
-model.compile(loss='mean_squared_error',
-                optimizer = keras.optimizers.Adam(0.001),
-                metrics=['mse']
+model.compile(loss='binary_crossentropy',
+                optimizer = keras.optimizers.RMSprop(0.001),
+                metrics=['acc']
                 )
 
 # train model
