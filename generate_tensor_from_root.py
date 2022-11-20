@@ -157,17 +157,6 @@ def save_training_data(path,output,shape=(12,32,2,2)):
     tensor = generate_training_data(path,shape)
     np.savez(output,tensor)
     return None
-
-## prepare target_features
-## first start with compton events 
-def get_compton_events(df_e):
-    """ get normal compton events 
-        condition that electron was induced
-        rerturn pd series of energy 
-    """
-    df_e["compton"] = 0
-    df_e.loc[ df_e.loc[:,"energy"] > 0, "compton"] = 1
-    return df_e["compton"]
     
 ## condition for complete compton event: 
 ## for electron goes through a second interaction: 10 <= e interaction < 20 
@@ -190,6 +179,30 @@ def _e_complete_comp_cond(interaction_array):
         return 1
     else:
         return 0 
+
+def _is_points_in_scatterer_x(x, start_x, end_x):
+    condition = ((start_x <= x).any() and (end_x >= x).any())
+    if condition:
+        return 1
+    else: 
+        return 0
+
+def _is_points_in_absorber_x(x, start_x, end_x):
+
+    condition = ((start_x <= x).any() and (end_x >= x).any())
+    if condition:
+        return 1
+    else: 
+        return 0
+
+def get_compton_events(df_e):
+    """ get normal compton events 
+        condition that electron was induced
+        rerturn pd series of energy 
+    """
+    df_e["compton"] = 0
+    df_e.loc[ df_e.loc[:,"energy"] > 0, "compton"] = 1
+    return df_e["compton"]
 
 def get_complete_compton_targets(df_int_e,df_int_p,compton_events):
     """
@@ -214,21 +227,6 @@ def get_complete_compton_targets(df_int_e,df_int_p,compton_events):
     return target_zeros_ones
 
 
-def _is_points_in_scatterer_x(x, start_x, end_x):
-    condition = ((start_x <= x).any() and (end_x >= x).any())
-    if condition:
-        return 1
-    else: 
-        return 0
-
-def _is_points_in_absorber_x(x, start_x, end_x):
-
-    condition = ((start_x <= x).any() and (end_x >= x).any())
-    if condition:
-        return 1
-    else: 
-        return 0
-
 def get_targets(compton_targets, df_pos_p_x,start_x,end_x):
     """
     first condition: check if a photon interaction is both in scatt and abs 
@@ -236,15 +234,15 @@ def get_targets(compton_targets, df_pos_p_x,start_x,end_x):
     note: in CCE we check whether there was a second interaction 
     so it suffies to check whether x is either in abs or scat
     """
-    abs_numpy = np.apply_along_axis(_is_points_in_absorber_x,1 ,df_pos_p_x.to_numpy(),(start_x[0],end_x[0]))
-    scatt_numpy = np.apply_along_axis(_is_points_in_scatterer_x,1 ,df_pos_p_x.to_numpy(),(start_x[1],end_x[1]))
+    abs_numpy = np.apply_along_axis(_is_points_in_absorber_x,1 ,df_pos_p_x.to_numpy(),start_x[0],end_x[0])
+    scatt_numpy = np.apply_along_axis(_is_points_in_scatterer_x,1 ,df_pos_p_x.to_numpy(),start_x[1],end_x[1])
     first_condition = (abs_numpy) & (scatt_numpy)
     second_condition = compton_targets
     final_condition = np.logical_and((first_condition) , (second_condition))
     final_condition = final_condition.astype(int)
     return final_condition 
 
-def generate_compton_class_targets(path):
+def generate_target_data(path):
     df_e = read_data.get_df_from_root(path,"MCEnergyPrimary", col_name="energy")
     df_int_e = read_data.get_df_from_root(path,"MCInteractions_e")
     df_int_p = read_data.get_df_from_root(path,"MCInteractions_p")
@@ -260,15 +258,19 @@ def generate_compton_class_targets(path):
     detector_end = [scatterer_end_x,absorber_end_x]
     targets = get_targets(complete_compton_events,df_pos_p_x,detector_start,detector_end)
     return targets
-#%%
-targets = generate_compton_class_targets(path)
 
-#%%
+def save_target_data(path,output,shape=(12,32,2,2)):
+    tensor = generate_target_data(path,shape)
+    np.savez(output,tensor)
+    return None
 
-
-#%%
-
-read_data.get_detector_geometry(path=path)
-
-#%%
-read_data.get_path()
+if __main__ == "__main__":
+	input_path = r"Path"
+	output_path = r"Path"
+	output_name_data = r"training_data.npz"
+	output_name_targets = r"target_data.npz"
+	output_name_data = output_path + output_name_data
+	output_name_target = output_path + output_name_targets
+	save_target_data(input_path,output_name_target)
+	save_training_data(input_path,output_name_target)
+	
