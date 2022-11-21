@@ -57,7 +57,7 @@ class read_data:
 
     def get_detector_geometry(self,path):
         self.path = path
-        path_setup =  fr"{self.path}" + r":Setup;1" 
+        path_setup =  self.path + r":Setup;1" 
         with uproot.open(path_setup) as file:  
             scatter_pos = file["ScattererPosition"].arrays()["ScattererPosition"].tolist()
             absorber_pos = file["AbsorberPosition"].arrays()["AbsorberPosition"].tolist()
@@ -80,10 +80,10 @@ class read_data:
         input: path, root_entry_str (too see all str call get_root_entry_str_list)
         return pandas df
         """
-        self.path = fr"{path}"
+        self.path = path
         self.root_entry_str = root_entry_str
         self.pos = pos
-        path_event = fr"{self.path}" + r":Events;1" 
+        path_event = self.path + r":Events;1" 
         with uproot.open(path_event) as file:   
             if pos == None:
                 data = file[root_entry_str].arrays()[root_entry_str].tolist()
@@ -122,7 +122,7 @@ class read_data:
                 col_name of df optional, pos (fX,fY,fZ) if calling a position
         return pandas df
         """
-        self.path = r'\b' + re.escape(path) 
+        self.path = fr"{path}" 
         self.root_entry_str = root_entry_str
         self.col_name = col_name
         self.pos = pos

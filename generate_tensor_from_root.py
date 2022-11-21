@@ -4,7 +4,7 @@
 -Initialize Training Data and input Features 
 -Save data as npz
 """
-
+#%%
 import numpy as np
 import pandas as pd
 from read_root import read_data
@@ -143,7 +143,7 @@ def get_nentries_in_event(df_QDC):
 
 
 def generate_training_data(path,shape=(12,32,2,2)):
-    read_data = read_data()
+   # read_data = read_data()
     df_ID = read_data.get_df_from_root(path,'SiPMData.fSiPMId')
     df_QDC = read_data.get_df_from_root(path,'SiPMData.fSiPMQDC')
     df_trig = read_data.get_df_from_root(path,'SiPMData.fSiPMTriggerTime')
@@ -243,10 +243,10 @@ def get_targets(compton_targets, df_pos_p_x,start_x,end_x):
     return final_condition 
 
 def generate_target_data(path):
-    df_e = read_data.get_df_from_root(path,"MCEnergyPrimary", col_name="energy")
-    df_int_e = read_data.get_df_from_root(path,"MCInteractions_e")
-    df_int_p = read_data.get_df_from_root(path,"MCInteractions_p")
-    df_pos_p_x = read_data.get_df_from_root(path,"MCPosition_p",pos="fX")
+    df_e = read_data.get_df_from_root(path,root_entry_str="MCEnergyPrimary", col_name="energy")
+    df_int_e = read_data.get_df_from_root(path,root_entry_str="MCInteractions_e")
+    df_int_p = read_data.get_df_from_root(path,root_entry_str="MCInteractions_p")
+    df_pos_p_x = read_data.get_df_from_root(path,root_entry_str="MCPosition_p",pos="fX")
     detector_pos_array, detector_thick_array = read_data.get_detector_geometry(path) 
     compton_events = get_compton_events(df_e)
     complete_compton_events = get_complete_compton_targets(df_int_e,df_int_p,compton_events)
@@ -260,17 +260,18 @@ def generate_target_data(path):
     return targets
 
 def save_target_data(path,output,shape=(12,32,2,2)):
-    tensor = generate_target_data(path,shape)
+    tensor = generate_target_data(path)
     np.savez(output,tensor)
     return None
+    
+if __name__ == "__main__":
+    read_data = read_data()
+    input_path = r"C:\Users\georg\Desktop\master_arbeit\SiPMNNNewGeometry\FinalDetectorVersion_RasterCoupling_OPM_38e8protons.root"
+    output_path = r""
+    output_name_data = "target_data_Raster_3838.npz"
+    output_name_targets = "training_data_Raster_3838.npz"
+    output_name_data = output_path + output_name_data
+    output_name_target = output_path + output_name_targets
+    save_training_data(input_path,output_name_data)
+    save_target_data(input_path,output_name_target)
 
-if __main__ == "__main__":
-	input_path = r"Path"
-	output_path = r"Path"
-	output_name_data = r"training_data.npz"
-	output_name_targets = r"target_data.npz"
-	output_name_data = output_path + output_name_data
-	output_name_target = output_path + output_name_targets
-	save_target_data(input_path,output_name_target)
-	save_training_data(input_path,output_name_target)
-	
