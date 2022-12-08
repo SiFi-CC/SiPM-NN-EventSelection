@@ -59,14 +59,14 @@ class read_data:
         self.path = path
         path_setup =  self.path + r":Setup;1" 
         with uproot.open(path_setup) as file:  
-            scatter_pos = file["ScattererPosition"].arrays()["ScattererPosition"].tolist()
-            absorber_pos = file["AbsorberPosition"].arrays()["AbsorberPosition"].tolist()
-            absorber_thick_x = file["AbsorberThickness_x"].arrays()["AbsorberThickness_x"].tolist()
-            absorber_thick_y = file["AbsorberThickness_y"].arrays()["AbsorberThickness_y"].tolist()
-            absorber_thick_z = file["AbsorberThickness_z"].arrays()["AbsorberThickness_z"].tolist()
-            scatter_thick_x = file["ScattererThickness_x"].arrays()["ScattererThickness_x"].tolist()
-            scatter_thick_y = file["ScattererThickness_y"].arrays()["ScattererThickness_y"].tolist()
-            scatter_thick_z = file["ScattererThickness_z"].arrays()["ScattererThickness_z"].tolist()
+            scatter_pos = file["ScattererPosition"].arrays()["ScattererPosition"].to_numpy()
+            absorber_pos = file["AbsorberPosition"].arrays()["AbsorberPosition"].to_numpy()
+            absorber_thick_x = file["AbsorberThickness_x"].arrays()["AbsorberThickness_x"].to_numpy()
+            absorber_thick_y = file["AbsorberThickness_y"].arrays()["AbsorberThickness_y"].to_numpy()
+            absorber_thick_z = file["AbsorberThickness_z"].arrays()["AbsorberThickness_z"].to_numpy()
+            scatter_thick_x = file["ScattererThickness_x"].arrays()["ScattererThickness_x"].to_numpy()
+            scatter_thick_y = file["ScattererThickness_y"].arrays()["ScattererThickness_y"].to_numpy()
+            scatter_thick_z = file["ScattererThickness_z"].arrays()["ScattererThickness_z"].to_numpy()
             scatterer_thick_array = self._scatterer_thick(scatter_thick_x,scatter_thick_y,scatter_thick_z)
             absorber_thick_array = self._absorber_thick(absorber_thick_x,absorber_thick_y,absorber_thick_z)
             detector_thick_array = self._detector_thick(scatterer_thick_array,absorber_thick_array)
@@ -74,7 +74,7 @@ class read_data:
             return detector_pos_array, detector_thick_array
 
         
-    def get_array_from_root(self,path,root_entry_str,pos=0):
+    def get_array_from_root(self,path,root_entry_str,pos=None):
         """
         create array from specified root branch
         input: path, root_entry_str (too see all str call get_root_entry_str_list)
@@ -86,9 +86,9 @@ class read_data:
         path_event = self.path + r":Events;1" 
         with uproot.open(path_event) as file:   
             if pos == None:
-                data = file[root_entry_str].arrays()[root_entry_str].tolist()
+                data = file[root_entry_str].arrays()[root_entry_str].to_numpy()
             else:
-                data = file[root_entry_str].arrays()[root_entry_str][pos].tolist()       
+                data = file[root_entry_str].arrays()[root_entry_str][pos].to_numpy()       
         return data
 
     def get_setup_from_root(self,path,root_entry_str):
@@ -101,7 +101,7 @@ class read_data:
         self.root_entry_str = root_entry_str
         path_setup =  fr"{path}" + r":Setup;1" 
         with uproot.open(path_setup) as file:   
-            data = file[root_entry_str].arrays()[root_entry_str].tolist()
+            data = file[root_entry_str].arrays()[root_entry_str].to_numpy()
         return data
     
     def get_root_entry_str_list(self,path):
@@ -129,28 +129,12 @@ class read_data:
         path_event = path + r":Events;1" 
         with uproot.open(path_event) as file:  
             if pos == None:
-                data = file[root_entry_str].arrays()[root_entry_str].tolist()
+                data = file[root_entry_str].arrays()[root_entry_str].to_numpy()
             else:
-                data = file[root_entry_str].arrays()[root_entry_str][pos].tolist()
+                data = file[root_entry_str].arrays()[root_entry_str][pos].to_numpy()
         if col_name == None:
             df = pd.DataFrame(data=data)
             return df
         else: 
             df = pd.DataFrame(data=data,columns=[col_name])
             return df
-    # source_pos = file['MCPosition_source'].arrays()['MCPosition_source'].tolist()
-    # primary_energy = file['MCEnergyPrimary'].arrays()['MCEnergyPrimary'].tolist()
-    # energy_e = file['MCEnergy_e'].arrays()['MCEnergy_e'].tolist()
-    # interaction_e = file['MCInteractions_e'].arrays()['MCInteractions_e'].tolist()
-    # energy_p = file['MCEnergy_p'].arrays()['MCEnergy_p'].tolist()
-    # interaction_p = file['MCInteractions_p'].arrays()['MCInteractions_p'].tolist()
-    #pos_p_x = file["MCPosition_p"].arrays()["MCPosition_p"]['fX'].tolist()
-    #pos_e_x = file["MCPosition_e"].arrays()["MCPosition_e"]['fX'].tolist()
-    # pos_p = file["MCPosition_p"].arrays()["MCPosition_p"].tolist()
-    # pos_e = file["MCPosition_e"].arrays()["MCPosition_e"].tolist()
-
-    # ## sipm data 
-# #bits = file['SiPMData.fBits'].arrays()['SiPMData.fBits'].tolist()
-# f_x = file['SiPMData.fSiPMPosition'].arrays()['SiPMData.fSiPMPosition'][].tolist()
-# f_y = file['SiPMData.fSiPMPosition'].arrays()['SiPMData.fSiPMPosition']['fY'].tolist()
-# f_z = file['SiPMData.fSiPMPosition'].arrays()['SiPMData.fSiPMPosition']['fZ'].tolist()

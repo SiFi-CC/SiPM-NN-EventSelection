@@ -16,12 +16,17 @@ read_data = read_data()
 path = r"C:\Users\georg\Desktop\master_arbeit\SiPMNNNewGeometry\FinalDetectorVersion_RasterCoupling_OPL_2e8protons.root"
 read_data = read_data()
 read_data.get_root_entry_str_list(path)
+#%%
+# SiPM 
 df_x = read_data.get_df_from_root(path=path, root_entry_str='SiPMData.fSiPMPosition',pos='fX')
 df_y = read_data.get_df_from_root(path=path, root_entry_str='SiPMData.fSiPMPosition',pos='fY')
 df_z = read_data.get_df_from_root(path=path, root_entry_str='SiPMData.fSiPMPosition',pos='fZ')
 df_id = read_data.get_df_from_root(path=path, root_entry_str='SiPMData.fSiPMId')
 df_QDC = read_data.get_df_from_root(path=path, root_entry_str='SiPMData.fSiPMQDC')
-
+#%%
+# Energy 
+df_primary = get_data.get_df_from_root(path_root,"MCEnergyPrimary", col_name="energy")
+#%%
 ## get ids tensor
 ids_tensor = ids_tensor()
 ids_tensor_12 = ids_tensor.get_ids_tensor()
