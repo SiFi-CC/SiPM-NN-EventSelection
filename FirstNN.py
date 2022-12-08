@@ -6,19 +6,13 @@ import matplotlib.pyplot as plt
 
 # load data
 #with np.load(path) as data:
-input_data = np.load(r"C:\Users\georg\Desktop\master_arbeit\data\training_data_raster_3838.npz")
-output_data = np.load(r"C:\Users\georg\Desktop\master_arbeit\data\target_data_raster_3838.npz")
+input_data = np.load(r"D:\master_thesis_data\training_data_raster_38e8_neg.npz")
+output_data = np.load(r"D:\master_thesis_data\target_data_ideal_raster_38e8.npz")
 
 input_data = input_data['arr_0']#.swapaxes(2,3)
 output_data = output_data['arr_0']#.swapaxes(2,3)
-print(input_data.shape)
-print(output_data.shape)
+
 #%%
-input_data.ndim
-#%%
-input_data = np.swapaxes(input_data,3,2)
-#%%
-input_data.shape
 #%%
 # slice data
 trainset_index  = int(input_data.shape[0]*0.7)
@@ -32,16 +26,19 @@ Y_val   = output_data[trainset_index:valset_index]
 X_test  = input_data[valset_index:]
 Y_test  = output_data[valset_index:]
 input_shape = X_train.shape
+#%%
 # define model
-model = keras.Sequential([keras.layers.InputLayer(input_shape = (12,2,32,2)),
-                            keras.layers.Conv3D(filters = 8, kernel_size = (3,1,3),input_shape=(12,2,32,1),padding="same",activation="tanh"),
-                            keras.layers.Conv3D(filters=16,kernel_size=(3,3,3),activaiton='relu')
-                            #keras.layers.Conv3D(filters = 5, kernel_size = 2),
- #                           keras.layers.Conv3D(filters = 5, kernel_size = 2),
-                            keras.layers.Flatten(),
-                            keras.layers.Dense(736, activation = "tanh") ,
+model = keras.Sequential([keras.layers.InputLayer(input_shape = (12,32,2,2)),
+                            keras.layers.Conv3D(filters = 8, kernel_size = (3,3,1),padding="same",activation="relu"),
+                            keras.layers.Conv3D(filters = 16, kernel_size = (3,3,1),padding="same",activation="relu"),
+                            keras.layers.Conv3D(filters=32,kernel_size=(3,3,1),activation='relu'),
+                            keras.layers.Conv3D(filters=64,kernel_size=(1,1,1),activation='relu'),
+			                keras.layers.Flatten(),
+			                keras.layers.Dropout(0.4),
                             keras.layers.Dense(1, activation = "sigmoid")])
+
 # compile model
+model.summary()
 model.compile(loss='binary_crossentropy',
                 optimizer = keras.optimizers.Adam(0.001),
                 metrics=['acc']
@@ -53,9 +50,9 @@ history = model.fit(X_train,
             epochs = 100,    
             validation_data = (X_val, Y_val), 
             callbacks = [tf.keras.callbacks.EarlyStopping('val_loss', patience=10)],
-            batch_size = 64
+            batch_size = 64,
+            class_weight = {0:1, 1:6.5}
             )
-
 #evaluate model
 score = model.evaluate(X_test, Y_test, verbose = 0) 
 
@@ -63,8 +60,8 @@ print('Test loss:', score[0])
 print('Test accuracy:', score[1])
 
 y_pred = model.predict(X_test)
-model.save('Second_NN_model1')
-np.savez("y_pred.npz",y_pred)
+model.save('third_NN_model1_edited_allneg')
+#np.savez("y_pred_3.npz",y_pred)
 #%%
 index_pred = np.where(y_pred > 0.5)
 #%%
@@ -76,30 +73,35 @@ Purity = n_compton/len(index_pred[0])
 #%%
 print("Efficiency is",  efficiency)
 print("Purity is",  Purity)
+
 #%%
 len(Y_test[Y_test==1])/len(Y_test)
-output_data[index_correct]
+#%%
+print(len(index_pred[0])/len(y_pred))
+#output_data[index_correct]
 #%%
 # summarize history for loss
-plt.figure(0)
+fig = plt.figure(figsize=(15,10))
 plt.plot(history.history['loss'])
 plt.plot(history.history['val_loss'])
 plt.title('model loss')
 plt.ylabel('loss')
 plt.xlabel('epoch')
-plt.legend(['train', 'test'], loc='upper left')
-plt.savefig('loss_hist1.png')
+plt.legend(['train', 'val'], loc='upper left')
+plt.savefig('loss_hist3_edited.png',bbox_inches='tight')
 
 
 # summarize history for accuracy
-plt.figure(1)
+fig = plt.figure(figsize=(15,10))
 plt.plot(history.history['acc'])
 plt.plot(history.history['val_acc'])
-plt.title('model mse')
+plt.title('model acc')
 plt.ylabel('mse')
 plt.xlabel('epoch')
-plt.legend(['train', 'test'], loc='upper left')
-plt.savefig('acc_hist1.png')
-
-# save model
-model.save('firstNN_model1')
+plt.legend(['train', 'val'], loc='upper left')
+plt.savefig('acc_hist3_edited.png',bbox_inches="tight")
+#%%
+np.savetxt("acc_third_model_edited.csv", history.history['acc'])
+np.savetxt("val_acc_third_model_edited.csv", history.history['val_acc'])
+np.savetxt("loss_acc_third_model_edited.csv", history.history['loss'])
+np.savetxt("val_acc_third_model_edited.csv", history.history['val_loss'])
