@@ -12,6 +12,8 @@ output_data = np.load(r"D:\master_thesis_data\target_data_ideal_raster_38e8.npz"
 input_data = input_data['arr_0']#.swapaxes(2,3)
 output_data = output_data['arr_0']#.swapaxes(2,3)
 
+
+
 #%%
 #%%
 # slice data

@@ -34,6 +34,7 @@ class read_data:
             return pos_dict
         scatter_pos_array = _get_pos_array(scatter_pos)
         absorber_pos_array = _get_pos_array(absorber_pos)
+        
         detector_pos = np.concatenate([[scatter_pos_array],[absorber_pos_array]])
         return detector_pos
 
@@ -59,14 +60,14 @@ class read_data:
         self.path = path
         path_setup =  self.path + r":Setup;1" 
         with uproot.open(path_setup) as file:  
-            scatter_pos = file["ScattererPosition"].arrays()["ScattererPosition"].to_numpy()
-            absorber_pos = file["AbsorberPosition"].arrays()["AbsorberPosition"].to_numpy()
-            absorber_thick_x = file["AbsorberThickness_x"].arrays()["AbsorberThickness_x"].to_numpy()
-            absorber_thick_y = file["AbsorberThickness_y"].arrays()["AbsorberThickness_y"].to_numpy()
-            absorber_thick_z = file["AbsorberThickness_z"].arrays()["AbsorberThickness_z"].to_numpy()
-            scatter_thick_x = file["ScattererThickness_x"].arrays()["ScattererThickness_x"].to_numpy()
-            scatter_thick_y = file["ScattererThickness_y"].arrays()["ScattererThickness_y"].to_numpy()
-            scatter_thick_z = file["ScattererThickness_z"].arrays()["ScattererThickness_z"].to_numpy()
+            scatter_pos = file["ScattererPosition"].arrays()["ScattererPosition"].tolist()
+            absorber_pos = file["AbsorberPosition"].arrays()["AbsorberPosition"].tolist()
+            absorber_thick_x = file["AbsorberThickness_x"].arrays()["AbsorberThickness_x"].tolist()
+            absorber_thick_y = file["AbsorberThickness_y"].arrays()["AbsorberThickness_y"].tolist()
+            absorber_thick_z = file["AbsorberThickness_z"].arrays()["AbsorberThickness_z"].tolist()
+            scatter_thick_x = file["ScattererThickness_x"].arrays()["ScattererThickness_x"].tolist()
+            scatter_thick_y = file["ScattererThickness_y"].arrays()["ScattererThickness_y"].tolist()
+            scatter_thick_z = file["ScattererThickness_z"].arrays()["ScattererThickness_z"].tolist()
             scatterer_thick_array = self._scatterer_thick(scatter_thick_x,scatter_thick_y,scatter_thick_z)
             absorber_thick_array = self._absorber_thick(absorber_thick_x,absorber_thick_y,absorber_thick_z)
             detector_thick_array = self._detector_thick(scatterer_thick_array,absorber_thick_array)
@@ -86,10 +87,10 @@ class read_data:
         path_event = self.path + r":Events;1" 
         with uproot.open(path_event) as file:   
             if pos == None:
-                data = file[root_entry_str].arrays()[root_entry_str].to_numpy()
+                data = file[root_entry_str].arrays()[root_entry_str].tolist()
             else:
-                data = file[root_entry_str].arrays()[root_entry_str][pos].to_numpy()       
-        return data
+                data = file[root_entry_str].arrays()[root_entry_str][pos].tolist()       
+        return np.array(data)
 
     def get_setup_from_root(self,path,root_entry_str):
         """
@@ -101,7 +102,7 @@ class read_data:
         self.root_entry_str = root_entry_str
         path_setup =  fr"{path}" + r":Setup;1" 
         with uproot.open(path_setup) as file:   
-            data = file[root_entry_str].arrays()[root_entry_str].to_numpy()
+            data = file[root_entry_str].arrays()[root_entry_str].tolist()
         return data
     
     def get_root_entry_str_list(self,path):
@@ -129,9 +130,9 @@ class read_data:
         path_event = path + r":Events;1" 
         with uproot.open(path_event) as file:  
             if pos == None:
-                data = file[root_entry_str].arrays()[root_entry_str].to_numpy()
+                data = file[root_entry_str].arrays()[root_entry_str].tolist()
             else:
-                data = file[root_entry_str].arrays()[root_entry_str][pos].to_numpy()
+                data = file[root_entry_str].arrays()[root_entry_str][pos].tolist()
         if col_name == None:
             df = pd.DataFrame(data=data)
             return df
