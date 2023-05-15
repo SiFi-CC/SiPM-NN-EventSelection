@@ -246,37 +246,16 @@ class generate_tensor_from_root:
         
     def save_target_data(self,path,output,type="ideal",cut=False, min_cut=1,max_cut=10):
         if type == "ideal":
-            tensor = self.generate_ideal_target_data(path,cut=cut, min_cut=1,max_cut=10)
+            ideal_target, pos_p_idx, pos_e_idx= self.generate_ideal_target_data(path,cut=cut,min_cut=min_cut,max_cut=max_cut)
+            np.savez(output,ideal_target)
+            np.savez(output+"_pos_p_idx",pos_p_idx)
+            np.savez(output+"_pos_e_idx",pos_e_idx)
+            return None
         elif type == "complete":
-            tensor = self.generate_complete_target_data(path,cut=cut, min_cut=1,max_cut=10)
+            tensor = self.generate_complete_target_data(path,cut=cut, min_cut=min_cut,max_cut=max_cut)
+            return None
         else: 
             raise(ValueError("target type must be: ideal or complete"))
-        np.savez(output,tensor)
-        return None
+            return None
 
 
- #%%
-#if __name__ == "__main__":
-#    get_data = read_data()
-##    input_path_BP0mm = r"C:\Users\georg\Desktop\master_thesis\FinalDetectorVersion_RasterCoupling_OPM_38e8protons.root"
- #   input_path_BP5mm = r"C:\Users\georg\Desktop\master_thesis\FinalDetectorVersion_RasterCoupling_OPM_BP5mm_4e9protons.root"
- #   output_path = r"C:\Users\georg\Desktop\master_thesis"
- #   target_data_BP0mm = output_path + r"\ideal_targets_raster_ep.npz"
- #   target_data_BP5mm = output_path + r"\ideal_targets_raster_BP5mm_ep.npz"
- #   output_name_BP0mm = output_path+r"\training_data_bothneg_norm26k_1232_2ch_midempty_0mmBP_compton.npz"
- #   output_name_BP5mm = output_path+r"\training_data_bothneg_norm26k_1232_2ch_midempty_5mmBP_compton.npz"
-   # save_training_data(input_path_BP0mm,output_name_BP0mm,shape=(16,32,2,2),qdc="Normed",norm_value=26474,neg=False,bothneg=True,padding=0,cut=False, min_cut=2,max_cut=20,flag_channel=False,compton=True,compton_path=target_data_BP0mm)
-   #save_training_data(input_path_BP5mm,output_name_BP5mm,shape=(16,32,2,2),qdc="Normed",norm_value=26474,neg=False,bothneg=True,padding=0,cut=False, min_cut=2,max_cut=20,flag_channel=False,compton=True,compton_path=target_data_BP5mm)
- #   print("DONE Training Data Data")
-
-
-# %%
-#save_target_data(input_path_BP0mm,"test",type="ideal")
-# %%
-#target = np.load("test.npz")
-# %%
-#target = target["arr_0"]
-# %%
-#len(target[0][target[0] == 1])/len(target[0])
-# %%
-#print(target)
